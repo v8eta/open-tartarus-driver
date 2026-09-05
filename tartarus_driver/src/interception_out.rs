@@ -58,8 +58,11 @@ const INTERCEPTION_KEY_DOWN: u16 = 0x00;
 const INTERCEPTION_KEY_UP: u16 = 0x01;
 const INTERCEPTION_KEY_E0: u16 = 0x02;
 
+// `unsafe extern` is required by edition 2024 (and accepted since Rust 1.82),
+// which this crate uses. Declaring a foreign signature is itself the unsafe
+// act — the compiler cannot check it against the real symbol.
 #[link(name = "interception")]
-extern "C" {
+unsafe extern "C" {
     fn interception_create_context() -> InterceptionContext;
     fn interception_destroy_context(context: InterceptionContext);
     fn interception_send(
