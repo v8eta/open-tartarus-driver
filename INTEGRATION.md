@@ -72,14 +72,40 @@ fn main() {
 
 and put `interception.lib` / `interception.dll` (x64) in `tartarus_driver/lib/`.
 
-### 4. Reuse dpad.rs's context if one exists
+### 4. Do NOT "clean this up" to use the `interception` crate
 
-`dpad.rs` already creates an Interception context for D-pad/wheel remapping.
-Two contexts in one process work, but a single shared one is tidier and avoids
-double driver handles. If `dpad.rs` exposes its context, delete
-`interception_out.rs`'s `CTX`/`ctx()` and take the context + device as
-parameters instead. **Check this before shipping** — I wrote the module
-self-contained specifically so it works either way.
+An earlier draft of these notes suggested reusing `dpad.rs`'s safe
+`interception` crate binding instead of raw FFI. **That is wrong, and the
+reason matters**, so it is recorded here rather than silently dropped.
+
+The crate's `Stroke::Keyboard { code, .. }` takes a **`ScanCode`**, a C-like
+enum. It converts one way only — `code as u16`, see `dpad.rs:298` — and there
+is no `u16 -> ScanCode`. `transmute`-ing an arbitrary `u16` into it is
+undefined behaviour for any value that is not a declared variant.
+
+This module must send whatever scancode `MapVirtualKeyW` returns for a
+**user-chosen** binding, which is arbitrary by definition. Raw FFI takes a
+plain `u16` and avoids the enum entirely.
+
+`dpad.rs` gets away with the crate because it only ever *compares* incoming
+scancodes against a handful of named constants and forwards strokes unmodified
+— it never constructs one from a number.
+
+Two contexts in one process are fine: `dpad`'s filters and receives, this one
+only sends.
+
+### 5. Make `explicit_scan_code` visible
+
+`vk_to_scancode` prefers `main.rs`'s existing `explicit_scan_code()` for the six
+modifier keys whose left/right variants share a scancode and differ only by the
+E0 flag — its own comment calls that the hardware-verified path. It is currently
+a private `fn`, so change it to:
+
+```rust
+pub(crate) fn explicit_scan_code(vk: VIRTUAL_KEY) -> Option<(u16, bool)> {
+```
+
+Everything else falls through to `MapVirtualKeyW`.
 
 ---
 
