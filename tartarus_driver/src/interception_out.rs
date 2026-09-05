@@ -15,10 +15,19 @@
 // flag is applied. A stroke sent this way is indistinguishable from a real
 // keypress because, as far as the input stack is concerned, it is one.
 //
-// This module is deliberately self-contained (its own FFI decls, its own
-// context) so it can be dropped in without touching dpad.rs's existing
-// Interception usage. If dpad.rs already exposes a shared context/bindings,
-// prefer reusing those — see INTEGRATION.md, step 4.
+// WHY RAW FFI AND NOT THE `interception` CRATE
+// --------------------------------------------
+// dpad.rs uses the safe `interception` crate (0.1.2), and reusing its binding
+// would look tidier — but it CANNOT express this module's job. The crate's
+// `Stroke::Keyboard { code, .. }` takes a `ScanCode`, a C-like enum. It
+// converts one way only (`code as u16`, see dpad.rs:298); there is no
+// `u16 -> ScanCode`, and `transmute`-ing an arbitrary u16 into it is undefined
+// behaviour for any value that isn't a declared variant.
+//
+// This module must send whatever scancode `MapVirtualKeyW` returns for a
+// user-chosen binding, which is arbitrary by definition. Raw FFI takes a plain
+// u16 and sidesteps the enum entirely. The two contexts coexist fine — dpad's
+// filters and receives, this one only sends.
 //
 // Requires: Interception driver installed (`install-interception.exe /install`,
 // then reboot) and interception.dll + interception.lib available to the build.
@@ -138,6 +147,14 @@ pub fn available() -> bool {
 /// numpad `/` are ALL extended. Drop the E0 and you send the numpad
 /// equivalent instead — e.g. Up arrow arrives as numpad 8.
 fn vk_to_scancode(vk: VIRTUAL_KEY) -> Option<(u16, bool)> {
+    // main.rs already carries a hand-verified table for the six modifier keys
+    // whose left/right variants share a scancode and differ only by the E0
+    // flag (its comment calls it the "hardware-verified path"). Prefer it —
+    // MapVirtualKeyW is correct for these too, but there is no reason to
+    // second-guess a table someone confirmed against real hardware.
+    if let Some(hit) = crate::explicit_scan_code(vk) {
+        return Some(hit);
+    }
     let raw = unsafe { MapVirtualKeyW(vk.0 as u32, MAPVK_VK_TO_VSC_EX) };
     if raw == 0 {
         return None; // no scancode for this VK (media/browser keys — see below)
