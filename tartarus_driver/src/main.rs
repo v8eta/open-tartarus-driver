@@ -9,6 +9,7 @@ mod configui;
 mod dpad;
 mod emulate;
 mod hypershift;
+mod interception_out;
 mod lighting;
 mod tray;
 mod vkname;
@@ -332,7 +333,7 @@ unsafe extern "system" fn console_ctrl_handler(_ctrl_type: u32) -> BOOL {
 // the plain wVk-only path below unchanged, since that's already
 // hardware-verified working — this table only overrides the handful of
 // keys where it isn't.
-fn explicit_scan_code(vk: VIRTUAL_KEY) -> Option<(u16, bool)> {
+pub(crate) fn explicit_scan_code(vk: VIRTUAL_KEY) -> Option<(u16, bool)> {
     // (scan code, is_extended)
     match vk {
         VK_LSHIFT => Some((0x2A, false)),
@@ -345,7 +346,25 @@ fn explicit_scan_code(vk: VIRTUAL_KEY) -> Option<(u16, bool)> {
     }
 }
 
+// Dispatches between the two output paths.
+//
+// Interception sends REAL keyboard scancodes through the kernel driver, which
+// DirectInput/Raw Input titles accept - SendInput stamps events with the
+// OS-level injected flag and those titles discard them. See
+// interception_out.rs for the full reasoning.
+//
+// Falls back to SendInput when the Interception driver is not installed, or
+// for VKs with no set-1 scancode (media/volume/browser keys). Those are
+// consumed by the shell rather than by games, so the injected flag does not
+// matter for them.
 fn send_key(vk: VIRTUAL_KEY, key_up: bool) {
+    if interception_out::send_key(vk, key_up) {
+        return;
+    }
+    send_key_sendinput(vk, key_up);
+}
+
+fn send_key_sendinput(vk: VIRTUAL_KEY, key_up: bool) {
     let key_up_flag = if key_up { KEYEVENTF_KEYUP } else { KEYBD_EVENT_FLAGS(0) };
     let ki = match explicit_scan_code(vk) {
         // Scan-code-based send: wVk is ignored by SendInput once
