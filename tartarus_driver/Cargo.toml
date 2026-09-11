@@ -1,10 +1,15 @@
 [package]
-name = "tartarus_driver"
+name = "tard"
 version = "1.0.7"
 edition = "2024"
 license = "GPL-3.0-or-later"
 authors = ["ultramonaka"]
 description = "Standalone Rust driver for the Razer Tartarus Pro, no Synapse required"
+
+# The installed runtime is launched by filename, so the binary must stay TarD.exe.
+[[bin]]
+name = "TarD"
+path = "src/main.rs"
 
 [dependencies]
 # HIDデバイスと生パケット通信をするため

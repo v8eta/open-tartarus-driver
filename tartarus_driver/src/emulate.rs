@@ -135,7 +135,7 @@ fn handle_command(
 pub fn run_emulator() {
     crate::set_cfg(config::load());
 
-    println!("tartarus_driver emulate mode — no HID device, no Interception, no hardware needed.");
+    println!("TarD emulate mode — no HID device, no Interception, no hardware needed.");
     print_help();
 
     let start = Instant::now();

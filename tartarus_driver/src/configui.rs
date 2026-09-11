@@ -7,7 +7,7 @@
 // this same server on its own thread inside the main driver process (see
 // run_tray_mode in main.rs) — the two are expected to run at the same time
 // in that case. Either way, saving here never needs a restart to take
-// effect: a running `tartarus_driver` picks up config.toml changes on its
+// effect: a running `TarD` picks up config.toml changes on its
 // own within about a second (v1.0.6 hot-reload, main.rs's run_driver loop).
 
 use crate::config::{ConfigPayload, DriverConfig};
@@ -164,7 +164,7 @@ fn json_response(body: String, status: u16) -> Response<std::io::Cursor<Vec<u8>>
 //
 // A live view of raw analog depth per key, to help pick sensible t_on/t_off
 // values instead of guessing blindly. Runs as a dedicated thread, separate
-// from — and possibly concurrent with — the main `tartarus_driver` process's
+// from — and possibly concurrent with — the main `TarD` process's
 // own analog-read loop: Windows HID input reports are broadcast to every
 // open reader, so a second handle opened here should see the same data
 // without disturbing the first (unlike SendInput/writes, which would
@@ -338,7 +338,7 @@ fn handle_request(request: tiny_http::Request) {
                     request,
                     payload.validate_and_save(),
                     Some(
-                        "configui: config.toml を更新しました。動作中の tartarus_driver は約1秒以内に自動で新しい割り当てを反映します。",
+                        "configui: config.toml を更新しました。動作中の TarD は約1秒以内に自動で新しい割り当てを反映します。",
                     ),
                     "保存エラー",
                 ),

@@ -573,7 +573,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
     init_log_file();
-    println!("tartarus_driver v{VERSION}");
+    println!("TarD v{VERSION}");
 
     let subcommand = env::args().nth(1);
     match subcommand.as_deref() {

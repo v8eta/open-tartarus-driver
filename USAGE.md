@@ -14,11 +14,11 @@
 
 ### 1.5 Folder layout
 
-Everything is resolved relative to wherever `tartarus_driver.exe` itself is — put it in any folder, and the rest lives alongside it:
+Everything is resolved relative to wherever `TarD.exe` itself is — put it in any folder, and the rest lives alongside it:
 
 ```
 your-folder\
-├── tartarus_driver.exe    ← the driver
+├── TarD.exe               ← the driver
 ├── run-tray.bat           ← double-click for tray mode
 ├── interception.dll       ← copy this in yourself (see "Known limitation" in README.md); optional
 ├── config.toml            ← optional; created by configui, or copy config.example.toml and edit it
@@ -34,9 +34,9 @@ your-folder\
 If you downloaded the pre-built exe from Releases, run it directly:
 
 ```powershell
-.\tartarus_driver.exe          # no args: runs indefinitely until Ctrl+C (normal usage)
-.\tartarus_driver.exe 30       # a number: runs that many seconds then exits (for testing)
-.\tartarus_driver.exe tray     # no console window, runs from a system tray icon instead
+.\TarD.exe          # no args: runs indefinitely until Ctrl+C (normal usage)
+.\TarD.exe 30       # a number: runs that many seconds then exits (for testing)
+.\TarD.exe tray     # no console window, runs from a system tray icon instead
 ```
 
 Building from source instead, run the equivalent via cargo:
@@ -48,16 +48,16 @@ cargo run --release -- 30
 cargo run --release -- tray
 ```
 
-- The first line printed (and logged) at startup is always `tartarus_driver vX.Y.Z`, so you can confirm which version you're running (e.g. against the Releases page) without checking the exe's properties.
+- The first line printed (and logged) at startup is always `TarD vX.Y.Z`, so you can confirm which version you're running (e.g. against the Releases page) without checking the exe's properties.
 - On startup, it automatically sends the init command needed to stream analog data without Synapse.
 - While running, pressing keys logs to stdout (and only to `logs/run.log` in `tray` mode). The actual disk write happens on its own background thread — logging never adds latency to key presses, D-pad/wheel remapping, or Hypershift, no matter how fast you press. `run.log` is also capped at ~5 MiB (it truncates and keeps going rather than growing forever), since `tray` mode is meant to be left running for days.
 - With no arguments, it runs until Ctrl+C or the console window is closed. Unless force-killed (e.g. via Task Manager), any held key is automatically released on shutdown.
-- **Double-clicking the exe from Explorer runs normal mode (no args)**, so a console window stays open — this is expected. To get `tray` mode instead, either run `tartarus_driver.exe tray` from a terminal, or double-click **`run-tray.bat`** (included in the release zip), which does the same thing.
+- **Double-clicking the exe from Explorer runs normal mode (no args)**, so a console window stays open — this is expected. To get `tray` mode instead, either run `TarD.exe tray` from a terminal, or double-click **`run-tray.bat`** (included in the release zip), which does the same thing.
 
 #### System tray mode (`tray`)
 
 ```powershell
-.\tartarus_driver.exe tray
+.\TarD.exe tray
 ```
 
 - Detaches the console window at startup (when possible), so it can run in the background.
@@ -68,7 +68,7 @@ cargo run --release -- tray
 #### Debug emulator (`emulate`), no hardware required
 
 ```powershell
-.\tartarus_driver.exe emulate
+.\TarD.exe emulate
 ```
 
 Loads `config.toml` exactly like normal mode, but never touches HID, Interception, or the Razer control device — no Tartarus Pro needed at all. Useful for trying out a keymap/actuation change, or just poking at the hysteresis/Hypershift logic, when the device isn't at hand.
@@ -106,7 +106,7 @@ The page itself has a language switcher (top right, English/日本語). Switchin
 
 **Notes**:
 - `configui` is not the driver itself — it's only a config editor. It never reads HID data or sends keystrokes.
-- Saving overwrites `config.toml` wholesale. If `tartarus_driver` is already running, it picks up the change automatically within about a second — no restart needed.
+- Saving overwrites `config.toml` wholesale. If `TarD` is already running, it picks up the change automatically within about a second — no restart needed.
 - It's easiest to close the config page (Ctrl+C) before running the normal driver (running both at once is harmless — `configui` just waits as a web server — but keeping them separate avoids confusion).
 
 #### Editing `config.toml` directly
@@ -174,7 +174,7 @@ Some games ignore this driver's input entirely, or refuse to launch while it's r
 |---|---|
 | Analog keys do nothing | Confirm Synapse's GUI is really closed (`Get-Process \| Where ProcessName -match 'Razer\|Synapse'` should show no GUI-looking process). Unplugging/replugging the device can also help |
 | Analog keys work in Notepad/most apps but not in one specific game | Likely that game's anti-cheat blocking synthetic input — see section 7 above. Not fixable from this driver's side |
-| D-pad/wheel still act as native arrow keys/scroll too (double input) | Check the startup log for `WARNING: interception.dll could not be loaded` or `Interception::new() returned None`. The former usually means the kernel driver is installed but `interception.dll` itself wasn't copied next to `tartarus_driver.exe` (step 4 in README's "Known limitation") — this is easy to miss since the kernel driver install alone doesn't produce any error, just this fallback |
+| D-pad/wheel still act as native arrow keys/scroll too (double input) | Check the startup log for `WARNING: interception.dll could not be loaded` or `Interception::new() returned None`. The former usually means the kernel driver is installed but `interception.dll` itself wasn't copied next to `TarD.exe` (step 4 in README's "Known limitation") — this is easy to miss since the kernel driver install alone doesn't produce any error, just this fallback |
 | Saved in `configui` but nothing changed | Wait ~1s — the running driver picks up `config.toml` changes automatically. Check `logs/run.log` for `config.toml reloaded` (or a `WARNING: ... keeping the previous settings` if the file has a syntax error) |
 | No tray icon in `tray` mode | Check `logs/run.log` for `[tray] WARNING: ...` (window class registration / window creation / icon add failure). Right after an Explorer restart, try relaunching `tray` |
 | Some keys in `config.toml` stay at their default | Check `logs/run.log` for `WARNING: config.toml [...] is not a recognized key name`. See section 3 above for valid key names |
@@ -193,11 +193,11 @@ Some games ignore this driver's input entirely, or refuse to launch while it's r
 
 ### 1.5 フォルダ構成
 
-すべてのファイルは`tartarus_driver.exe`自身の場所を基準に解決される。どこのフォルダに置いてもよく、必要なものは全部その隣に並ぶ:
+すべてのファイルは`TarD.exe`自身の場所を基準に解決される。どこのフォルダに置いてもよく、必要なものは全部その隣に並ぶ:
 
 ```
 好きなフォルダ\
-├── tartarus_driver.exe    ← 本体
+├── TarD.exe               ← 本体
 ├── run-tray.bat           ← ダブルクリックでtrayモード起動
 ├── interception.dll       ← 手動でコピーする(README.mdの「既知の制約」参照)。任意
 ├── config.toml            ← 任意。configuiで作成するか、config.example.tomlをコピーして編集
@@ -213,9 +213,9 @@ Some games ignore this driver's input entirely, or refuse to launch while it's r
 Releasesからビルド済みexeをダウンロードした場合は、直接実行する:
 
 ```powershell
-.\tartarus_driver.exe          # 引数なし: Ctrl+Cを押すまで無期限に動く(通常の使い方)
-.\tartarus_driver.exe 30       # 数字を渡すとその秒数だけ動いて自動終了(テスト用)
-.\tartarus_driver.exe tray     # コンソール窓を出さず、タスクトレイアイコンで動かす
+.\TarD.exe          # 引数なし: Ctrl+Cを押すまで無期限に動く(通常の使い方)
+.\TarD.exe 30       # 数字を渡すとその秒数だけ動いて自動終了(テスト用)
+.\TarD.exe tray     # コンソール窓を出さず、タスクトレイアイコンで動かす
 ```
 
 ソースからビルドする場合は、cargo経由で同等のコマンドを実行する:
@@ -227,16 +227,16 @@ cargo run --release -- 30
 cargo run --release -- tray
 ```
 
-- 起動時に最初に表示・記録される行は必ず`tartarus_driver vX.Y.Z`なので、exeのプロパティを確認しなくても、今動いているバージョンをReleasesページと照合できる。
+- 起動時に最初に表示・記録される行は必ず`TarD vX.Y.Z`なので、exeのプロパティを確認しなくても、今動いているバージョンをReleasesページと照合できる。
 - 起動直後に、Synapseなしでアナログデータを流すための初期化コマンドを自動送信する。
 - 実行中はキーを押すとログが標準出力(`tray`モードでは`logs/run.log`のみ)に出る。実際のディスク書き込みは専用のバックグラウンドスレッドで行われるため、どれだけ速くキーを押しても、キー入力・十字キー/ホイールのリマップ・Hypershiftの反応速度にログ処理が影響することはない。`run.log`自体も約5MiBで頭出しして書き続ける仕組み(無限に肥大化しない)なので、`tray`モードで何日も動かし続けても問題ない。
 - 引数なしの場合はCtrl+Cを押すか、コンソール窓を閉じるまで動き続ける。強制終了(タスクマネージャーでの「タスクの終了」など)でない限り、終了時に押しっぱなしのキーがあれば自動的に離す処理が入る。
-- **エクスプローラーからexeをダブルクリックすると、引数なしの通常モードで起動する**ため、コンソール窓が出たままになるのは正常な動作。`tray`モードにしたい場合は、ターミナルから`tartarus_driver.exe tray`を実行するか、リリースzipに同梱されている**`run-tray.bat`**をダブルクリックする(同じ動作をする)。
+- **エクスプローラーからexeをダブルクリックすると、引数なしの通常モードで起動する**ため、コンソール窓が出たままになるのは正常な動作。`tray`モードにしたい場合は、ターミナルから`TarD.exe tray`を実行するか、リリースzipに同梱されている**`run-tray.bat`**をダブルクリックする(同じ動作をする)。
 
 #### タスクトレイモード (`tray`)
 
 ```powershell
-.\tartarus_driver.exe tray
+.\TarD.exe tray
 ```
 
 - 起動時にコンソール窓を自動的に切り離す(可能な場合)ので、バックグラウンドで動かせる。
@@ -247,7 +247,7 @@ cargo run --release -- tray
 #### デバッグ用エミュレータ (`emulate`)、実機不要
 
 ```powershell
-.\tartarus_driver.exe emulate
+.\TarD.exe emulate
 ```
 
 通常モードと同じく`config.toml`を読み込むが、HID・Interception・Razerコントロールデバイスには一切触れない — Tartarus Proが手元になくても動く。キーマップ/感度設定を変えて試したいときや、ヒステリシス・Hypershiftのロジックだけ触って確認したいときに使う。
@@ -285,7 +285,7 @@ cargo run --release -- configui
 
 **注意点**:
 - `configui`はドライバ本体ではない。設定画面を出すだけで、HID読み取りやキー送信は一切行わない。
-- 保存すると`config.toml`を丸ごと書き換える。`tartarus_driver`が既に動いている場合、約1秒以内に自動で変更を反映する(再起動は不要)。
+- 保存すると`config.toml`を丸ごと書き換える。`TarD`が既に動いている場合、約1秒以内に自動で変更を反映する(再起動は不要)。
 - 設定画面は終了(Ctrl+C)してから、通常起動のドライバを動かす、という順番が分かりやすい(同時に動かしても害はないが、`configui`側は単にWebサーバーとして待機するだけ)。
 
 #### `config.toml`を直接編集する
@@ -339,7 +339,7 @@ reactive_speed = 2       # 1-4、reactiveで使用
 
 通常レイヤー以外が有効な間、Alt自体はOSに送られない(元のボタンがAltキーコードを送る仕様のため、押下/解放の検知には使うが`mode`/`switch_style`によらず意図的にブロックしている)。
 
-**2026-07-21修正**: 以前はこのAlt検知がソースデバイスを判別しない`WH_KEYBOARD_LL`フックで実装されていたため、`tartarus_driver`が動いている間は実キーボードのAlt(Alt+Tab、Alt+F4等)も一緒にOSに届かなくなる問題があった。現在はD-pad同様Interception経由のデバイス判別処理に統一されており、**Tartarus本体のAlt(Hyper Response)だけが対象になる。実キーボードのAlt+Tab等は影響を受けない**(実機確認済み)。
+**2026-07-21修正**: 以前はこのAlt検知がソースデバイスを判別しない`WH_KEYBOARD_LL`フックで実装されていたため、`TarD`が動いている間は実キーボードのAlt(Alt+Tab、Alt+F4等)も一緒にOSに届かなくなる問題があった。現在はD-pad同様Interception経由のデバイス判別処理に統一されており、**Tartarus本体のAlt(Hyper Response)だけが対象になる。実キーボードのAlt+Tab等は影響を受けない**(実機確認済み)。
 
 **既知の制約(Interception未インストール時のみ)**: Interceptionドライバが利用できない場合に限り、旧`WH_KEYBOARD_LL`フックへ自動的にフォールバックする。この場合はデバイス判別ができないため、上記の「実キーボードのAltも道連れでブロックされる」制約が復活する(起動時ログに`falling back to the hook-based Hypershift detection`と出ていれば該当)。Interceptionを未インストールのままにする理由がなければ、`README.md`の手順でインストールしておくことを推奨。
 
@@ -353,7 +353,7 @@ reactive_speed = 2       # 1-4、reactiveで使用
 |---|---|
 | アナログキーが何も反応しない | Synapseのタスクトレイアイコンが本当に閉じているか確認(`Get-Process \| Where ProcessName -match 'Razer\|Synapse'`でGUIプロセスが出ないこと)。デバイスの抜き差しも有効な場合がある |
 | メモ帳など大抵のアプリでは動くが特定のゲームだけ反応しない | そのゲームのアンチチートが合成入力をブロックしている可能性が高い — 上記7を参照。本ドライバ側での解決策は無い |
-| 十字キー/ホイールが元の矢印キー・スクロールとしても動いてしまう(二重入力) | 起動時ログに`WARNING: interception.dll could not be loaded`または`Interception::new() returned None`と出ていないか確認。前者は多くの場合、カーネルドライバは入っているが`interception.dll`自体が`tartarus_driver.exe`と同じフォルダにコピーされていない状態(README「既知の制約」の手順4)。カーネルドライバのインストールだけではエラーが出ないため見落としやすい |
+| 十字キー/ホイールが元の矢印キー・スクロールとしても動いてしまう(二重入力) | 起動時ログに`WARNING: interception.dll could not be loaded`または`Interception::new() returned None`と出ていないか確認。前者は多くの場合、カーネルドライバは入っているが`interception.dll`自体が`TarD.exe`と同じフォルダにコピーされていない状態(README「既知の制約」の手順4)。カーネルドライバのインストールだけではエラーが出ないため見落としやすい |
 | `configui`で保存したのに反映されない | 約1秒待つ — 動作中のドライバは`config.toml`の変更を自動で拾う。`logs/run.log`に`config.toml reloaded`(構文エラーがある場合は`WARNING: ... keeping the previous settings`)が出ているか確認 |
 | `tray`モードでタスクトレイにアイコンが出ない | `logs/run.log`に`[tray] WARNING: ...`が出ていないか確認(ウィンドウクラス登録・ウィンドウ作成・アイコン追加のいずれかの失敗)。Explorerの再起動直後などは再度`tray`を起動し直す |
 | `config.toml`の一部のキーだけ既定値のままになる | `logs/run.log`に`WARNING: config.toml [...] は認識できないキー名です`が出ていないか確認。使えるキー名の一覧は本ファイルの3節を参照 |

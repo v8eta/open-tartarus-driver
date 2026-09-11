@@ -32,9 +32,9 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}"
-          $stageDir = "tartarus_driver-$version-windows-x64"
+          $stageDir = "TarD-$version-windows-x64"
           New-Item -ItemType Directory -Path $stageDir | Out-Null
-          Copy-Item tartarus_driver/target/release/tartarus_driver.exe $stageDir/
+          Copy-Item tartarus_driver/target/release/TarD.exe $stageDir/
           Copy-Item README.md, USAGE.md, CHANGELOG.md, LICENSE, config.example.toml, run-tray.bat $stageDir/ -ErrorAction SilentlyContinue
           Compress-Archive -Path $stageDir/* -DestinationPath "$stageDir.zip"
           echo "asset=$stageDir.zip" >> $env:GITHUB_OUTPUT

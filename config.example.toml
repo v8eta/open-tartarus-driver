@@ -1,7 +1,7 @@
-# Example tartarus_driver key remap config.
+# Example TarD key remap config.
 #
 # This file documents the config.toml schema and shows the built-in
-# placeholder defaults (the same values tartarus_driver falls back to when
+# placeholder defaults (the same values TarD falls back to when
 # config.toml doesn't exist at all, or a specific entry is missing). Copy
 # this to config.toml and edit it, or just use `cargo run --release --
 # configui` and edit it from the browser instead — either way produces the

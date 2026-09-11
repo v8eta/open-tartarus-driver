@@ -267,7 +267,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tartarus_driver"
+name = "tard"
 version = "1.0.7"
 dependencies = [
  "hidapi",
