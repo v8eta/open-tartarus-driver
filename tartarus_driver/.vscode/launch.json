@@ -5,7 +5,7 @@
             "name": "Rust Debug (Win32)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/target/debug/tartarus_driver.exe",
+            "program": "${workspaceFolder}/target/debug/TarD.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -1,4 +1,6 @@
-# Tartarus Pro Standalone Driver
+# TarD — Tartarus Pro Standalone Driver
+
+A fork of [ultramonaka/open-tartarus-driver](https://github.com/ultramonaka/open-tartarus-driver), which does all of the original driver work. This fork adds an Interception scancode output path so that remapped keys reach games such as World of Tanks.
 
 **[English](#english)** | **[日本語](#japanese)**
 
